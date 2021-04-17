@@ -463,10 +463,9 @@ public:
     SENSOR_GRAVITY = BNO055_GRAVITY_DATA_X_LSB_ADDR
   } sensor_type_t;
 
-  BNO055(int32_t sensorID = -1, uint8_t address = BNO055_ADDRESS_A,
-         TwoWire *theWire = &Wire);
+  bool Initialize(uint8_t address, BNO055_opmode_t mode = OPERATION_MODE_NDOF, TwoWire &theWire = Wire);
+  bool Initialize(BNO055_opmode_t mode = OPERATION_MODE_NDOF, TwoWire &theWire = Wire);
 
-  bool begin(BNO055_opmode_t mode = OPERATION_MODE_NDOF);
   void setMode(BNO055_opmode_t mode);
   void setAxisRemap(BNO055_axis_remap_config_t remapcode);
   void setAxisSign(BNO055_axis_remap_sign_t remapsign);
@@ -588,6 +587,8 @@ public:
   void setGyroscopeAnyMotionSlopeSamples(uint8_t slope_samples);
 
 private:
+  bool begin(BNO055_opmode_t mode = OPERATION_MODE_NDOF);
+
   bool writePageId(uint8_t pageId);
   byte read8(BNO055_reg_t, uint8_t pageId = 0x00);
   bool readLen(BNO055_reg_t, byte *buffer, uint8_t len, uint8_t pageId = 0x00);
@@ -596,7 +597,6 @@ private:
   uint8_t _address;
   TwoWire *_wire;
 
-  int32_t _sensorID;
   BNO055_opmode_t _mode;
 };
 

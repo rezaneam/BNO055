@@ -36,19 +36,40 @@
 
 /*!
  *  @brief  Instantiates a new BNO055 class
- *  @param  sensorID
- *          sensor ID
  *  @param  address
  *          i2c address
  *  @param  theWire
  *          Wire object
  */
-BNO055::BNO055(int32_t sensorID, uint8_t address,
-               TwoWire *theWire)
+bool BNO055::Initialize(uint8_t address, BNO055_opmode_t mode, TwoWire &theWire)
 {
-  _sensorID = sensorID;
   _address = address;
-  _wire = theWire;
+  _wire = &theWire;
+  return begin(mode);
+}
+
+bool BNO055::Initialize(BNO055_opmode_t mode, TwoWire &theWire)
+{
+
+  _wire = &theWire;
+
+  _address = BNO055_ADDRESS_A;
+  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+    return begin(mode);
+
+  delay(1000);
+  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+    return begin(mode);
+
+  _address = BNO055_ADDRESS_B;
+  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+    return begin(mode);
+
+  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+    return begin(mode);
+
+  printf("BNO055 Sensor not found");
+  return false;
 }
 
 /*!
