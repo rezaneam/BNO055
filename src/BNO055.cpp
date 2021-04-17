@@ -68,7 +68,7 @@ bool BNO055::Initialize(BNO055_opmode_t mode, TwoWire &theWire)
   if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
-  printf("BNO055 Sensor not found");
+  printf("BNO055 Sensor not found\r\n");
   return false;
 }
 
