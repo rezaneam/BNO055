@@ -470,6 +470,7 @@ public:
   void setAxisRemap(BNO055_axis_remap_config_t remapcode);
   void setAxisSign(BNO055_axis_remap_sign_t remapsign);
   void getRevInfo(BNO055_rev_info_t *);
+  void printSensorInfo();
   void setExtCrystalUse(boolean usextal);
   void getSystemStatus(uint8_t *system_status, uint8_t *self_test_result,
                        uint8_t *system_error);
