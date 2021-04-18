@@ -68,7 +68,7 @@ bool BNO055::Initialize(BNO055_opmode_t mode, TwoWire &theWire)
   if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
-  printf("BNO055 Sensor not found\r\n");
+  printf("BNO055 >> Sensor not found\r\n");
   return false;
 }
 
@@ -357,6 +357,21 @@ void BNO055::getRevInfo(BNO055_rev_info_t *info)
   a = read8(BNO055_SW_REV_ID_LSB_ADDR);
   b = read8(BNO055_SW_REV_ID_MSB_ADDR);
   info->sw_rev = (((uint16_t)b) << 8) | ((uint16_t)a);
+}
+
+/*!
+ *  @brief  Prints the chip revision numbers
+ *          revision info
+ */
+void BNO055::printSensorInfo()
+{
+  BNO055_rev_info_t sensorInfo;
+  getRevInfo(&sensorInfo);
+  printf("BNO055 >> Software Revision ID  %X\r\n", sensorInfo.sw_rev);
+  printf("BNO055 >> Bootloader Version    %X\r\n", sensorInfo.bl_rev);
+  printf("BNO055 >> Accelerometer chip ID %X\r\n", sensorInfo.accel_rev);
+  printf("BNO055 >> Gyroscope chip ID     %X\r\n", sensorInfo.gyro_rev);
+  printf("BNO055 >> Magnetometer chip ID  %X\r\n", sensorInfo.mag_rev);
 }
 
 /*!
