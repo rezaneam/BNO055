@@ -68,7 +68,6 @@ bool BNO055::Initialize(BNO055_opmode_t mode, TwoWire &theWire)
   if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
-  printf("BNO055 >> Sensor not found\r\n");
   return false;
 }
 
@@ -114,10 +113,7 @@ bool BNO055::begin(BNO055_opmode_t mode)
     delay(1000); // hold on for boot
     id = read8(BNO055_CHIP_ID_ADDR);
     if (id != BNO055_ID)
-    {
-      printf("Sensor chip id is %X", id);
       return false; // still not? ok bail
-    }
   }
 
   /* Switch to config mode (just in case since this is the default) */
@@ -361,7 +357,7 @@ void BNO055::getRevInfo(BNO055_rev_info_t *info)
 
 /*!
  *  @brief  Prints the chip revision numbers
- *          revision info
+ *          revision info - Use getRevInfo in FreeRTOS to fetch the information
  */
 void BNO055::printSensorInfo()
 {
