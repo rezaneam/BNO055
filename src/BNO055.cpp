@@ -408,6 +408,26 @@ void BNO055::getCalibration(uint8_t *sys, uint8_t *gyro,
 }
 
 /*!
+ *  @brief  Gets current calibration state.  Each value should be a uint8_t
+ *          pointer and it will be set to 0 if not calibrated and 3 if
+ *          fully calibrated.
+ *          See section 34.3.54
+ *  @return calibration status in structure data format
+ */
+BNO055_calibration_state_t BNO055::getCalibration()
+{
+  BNO055_calibration_state_t cal;
+  uint8_t calData = read8(BNO055_CALIB_STAT_ADDR);
+
+  cal.SystemCalibrationState = (calData >> 6) & 0x03;
+  cal.GyroscropeCalibrationState = (calData >> 4) & 0x03;
+  cal.AccelerometerCalibrationState = (calData >> 2) & 0x03;
+  cal.MagnetometerCalibrationState = calData & 0x03;
+
+  return cal;
+}
+
+/*!
  *  @brief  Gets the temperature in degrees celsius
  *  @return temperature in degrees celsius
  */

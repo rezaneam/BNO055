@@ -57,6 +57,14 @@ typedef struct
   int16_t mag_radius; /**< magnetometer radius */
 } BNO055_offsets_t;
 
+typedef struct
+{
+  uint8_t SystemCalibrationState;
+  uint8_t AccelerometerCalibrationState;
+  uint8_t MagnetometerCalibrationState;
+  uint8_t GyroscropeCalibrationState;
+} BNO055_calibration_state_t;
+
 /*!
  *  @brief  Class that stores state and functions for interacting with
  *          BNO055 Sensor
@@ -476,6 +484,7 @@ public:
                        uint8_t *system_error);
   void getCalibration(uint8_t *system, uint8_t *gyro, uint8_t *accel,
                       uint8_t *mag);
+  BNO055_calibration_state_t getCalibration();
 
   imu::Vector<3> getVector(sensor_type_t sensor_type);
   imu::Quaternion getQuat();
