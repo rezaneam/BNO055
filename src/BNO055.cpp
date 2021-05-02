@@ -438,6 +438,61 @@ int8_t BNO055::getTemp()
 }
 
 /*!
+ *  @brief  Gets all measurments from the sensor - use this method when using NDOF 
+ *  @return structure of all measurments
+ */
+BNO055_raw_measurment_data_t BNO055::getFullMeasurment()
+{
+  BNO055_raw_measurment_data_t values;
+  uint8_t buffer[6];
+
+  // Read Accelerometer measurment
+  readLen((BNO055_reg_t)BNO055_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  values.Acceleration.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.Acceleration.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.Acceleration.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+
+  // Read Gyroscope measurment
+  readLen((BNO055_reg_t)BNO055_GYRO_DATA_X_LSB_ADDR, buffer, 6);
+  values.AngularVelocity.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.AngularVelocity.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.AngularVelocity.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+
+  // Read Magnetometer measurment
+  readLen((BNO055_reg_t)BNO055_MAG_DATA_X_LSB_ADDR, buffer, 6);
+  values.MagneticField.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.MagneticField.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.MagneticField.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+
+  // Read Linear Acceleration
+  readLen((BNO055_reg_t)BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  values.LinearAcceleration.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.LinearAcceleration.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.LinearAcceleration.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+
+  // Read Gravity
+  readLen((BNO055_reg_t)BNO055_GRAVITY_DATA_X_LSB_ADDR, buffer, 6);
+  values.GravityVector.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.GravityVector.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.GravityVector.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+
+  // Read Gravity
+  readLen((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
+  values.EulerAngles.Heading = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.EulerAngles.Roll = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.EulerAngles.Pitch = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+
+  // Read quaternion
+  readLen(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
+  values.Quaternion.W = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
+  values.Quaternion.X = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
+  values.Quaternion.Y = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
+  values.Quaternion.Z = ((int16_t)buffer[6]) | (((int16_t)buffer[7]) << 8);
+
+  return values;
+}
+
+/*!
  *  @brief   Gets a vector reading from the specified source
  *  @param   vector_type
  *           possible vector type values

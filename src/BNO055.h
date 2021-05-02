@@ -65,6 +65,40 @@ typedef struct
   uint8_t GyroscropeCalibrationState;
 } BNO055_calibration_state_t;
 
+typedef struct
+{
+  uint16_t X;
+  uint16_t Y;
+  uint16_t Z;
+} BNO_raw_3D_data_t;
+
+typedef struct
+{
+  uint16_t Heading;
+  uint16_t Roll;
+  uint16_t Pitch;
+} BNO_raw_Euler_data_t;
+
+typedef struct
+{
+  uint16_t W;
+  uint16_t X;
+  uint16_t Y;
+  uint16_t Z;
+} BNO_raw_Quaternion_data_t;
+
+typedef struct
+{
+  BNO_raw_3D_data_t Acceleration;
+  BNO_raw_3D_data_t AngularVelocity;
+  BNO_raw_3D_data_t MagneticField;
+  BNO_raw_3D_data_t LinearAcceleration;
+  BNO_raw_3D_data_t GravityVector;
+  BNO_raw_Euler_data_t EulerAngles;
+  BNO_raw_Quaternion_data_t Quaternion;
+
+} BNO055_raw_measurment_data_t;
+
 /*!
  *  @brief  Class that stores state and functions for interacting with
  *          BNO055 Sensor
@@ -488,6 +522,7 @@ public:
 
   imu::Vector<3> getVector(sensor_type_t sensor_type);
   imu::Quaternion getQuat();
+  BNO055_raw_measurment_data_t getFullMeasurment();
   int8_t getTemp();
 
   /* Functions to deal with raw calibration data */
