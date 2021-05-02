@@ -438,7 +438,7 @@ int8_t BNO055::getTemp()
 }
 
 /*!
- *  @brief  Gets all measurments from the sensor - use this method when using NDOF 
+ *  @brief  Gets all measurments from the sensor (not processed) - use this method when using NDOF 
  *  @return structure of all measurments
  */
 BNO055_raw_measurment_data_t BNO055::getFullMeasurment()
@@ -476,7 +476,7 @@ BNO055_raw_measurment_data_t BNO055::getFullMeasurment()
   values.GravityVector.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.GravityVector.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
-  // Read Gravity
+  // Read Euler Angles
   readLen((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
   values.EulerAngles.Heading = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.EulerAngles.Roll = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
@@ -488,6 +488,63 @@ BNO055_raw_measurment_data_t BNO055::getFullMeasurment()
   values.Quaternion.X = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.Quaternion.Y = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
   values.Quaternion.Z = ((int16_t)buffer[6]) | (((int16_t)buffer[7]) << 8);
+
+  return values;
+}
+
+/*!
+ *  @brief  Gets all measurments from the sensor (processed) - use this method when using NDOF 
+ *  @return structure of all measurments
+ */
+BNO055_measurment_data_t BNO055::getFullMeasurment(bool in_mg_scale, bool in_dps_scale)
+{
+  BNO055_measurment_data_t values;
+  uint8_t buffer[6];
+
+  double acceleration_scale = in_mg_scale ? 1 : 0.01;
+  double angle_scale = in_dps_scale ? (1.0 / 16) : (1.0 / 900);
+  // Read Accelerometer measurment
+  readLen((BNO055_reg_t)BNO055_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  values.Acceleration.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * acceleration_scale;
+  values.Acceleration.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * acceleration_scale;
+  values.Acceleration.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * acceleration_scale;
+
+  // Read Gyroscope measurment
+  readLen((BNO055_reg_t)BNO055_GYRO_DATA_X_LSB_ADDR, buffer, 6);
+  values.AngularVelocity.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * angle_scale;
+  values.AngularVelocity.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * angle_scale;
+  values.AngularVelocity.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * angle_scale;
+
+  // Read Magnetometer measurment
+  readLen((BNO055_reg_t)BNO055_MAG_DATA_X_LSB_ADDR, buffer, 6);
+  values.MagneticField.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) / 16;
+  values.MagneticField.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) / 16;
+  values.MagneticField.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) / 16;
+
+  // Read Linear Acceleration
+  readLen((BNO055_reg_t)BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  values.LinearAcceleration.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * acceleration_scale;
+  values.LinearAcceleration.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * acceleration_scale;
+  values.LinearAcceleration.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * acceleration_scale;
+
+  // Read Gravity
+  readLen((BNO055_reg_t)BNO055_GRAVITY_DATA_X_LSB_ADDR, buffer, 6);
+  values.GravityVector.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * acceleration_scale;
+  values.GravityVector.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * acceleration_scale;
+  values.GravityVector.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * acceleration_scale;
+
+  // Read Euler Angles
+  readLen((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
+  values.EulerAngles.Heading = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * angle_scale;
+  values.EulerAngles.Roll = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * angle_scale;
+  values.EulerAngles.Pitch = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * angle_scale;
+
+  // Read quaternion
+  readLen(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
+  values.Quaternion.W = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) / 16384;
+  values.Quaternion.X = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) / 16384;
+  values.Quaternion.Y = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) / 16384;
+  values.Quaternion.Z = (double)(((int16_t)buffer[6]) | (((int16_t)buffer[7]) << 8)) / 16384;
 
   return values;
 }

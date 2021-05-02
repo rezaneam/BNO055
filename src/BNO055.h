@@ -74,10 +74,24 @@ typedef struct
 
 typedef struct
 {
+  double X;
+  double Y;
+  double Z;
+} BNO_3D_data_t;
+
+typedef struct
+{
   uint16_t Heading;
   uint16_t Roll;
   uint16_t Pitch;
 } BNO_raw_Euler_data_t;
+
+typedef struct
+{
+  double Heading;
+  double Roll;
+  double Pitch;
+} BNO_Euler_data_t;
 
 typedef struct
 {
@@ -86,6 +100,14 @@ typedef struct
   uint16_t Y;
   uint16_t Z;
 } BNO_raw_Quaternion_data_t;
+
+typedef struct
+{
+  double W;
+  double X;
+  double Y;
+  double Z;
+} BNO_Quaternion_data_t;
 
 typedef struct
 {
@@ -98,6 +120,18 @@ typedef struct
   BNO_raw_Quaternion_data_t Quaternion;
 
 } BNO055_raw_measurment_data_t;
+
+typedef struct
+{
+  BNO_3D_data_t Acceleration;
+  BNO_3D_data_t AngularVelocity;
+  BNO_3D_data_t MagneticField;
+  BNO_3D_data_t LinearAcceleration;
+  BNO_3D_data_t GravityVector;
+  BNO_Euler_data_t EulerAngles;
+  BNO_Quaternion_data_t Quaternion;
+
+} BNO055_measurment_data_t;
 
 /*!
  *  @brief  Class that stores state and functions for interacting with
@@ -522,6 +556,7 @@ public:
 
   imu::Vector<3> getVector(sensor_type_t sensor_type);
   imu::Quaternion getQuat();
+  BNO055_measurment_data_t getFullMeasurment(bool mg_scale = true, bool dps_scale = true);
   BNO055_raw_measurment_data_t getFullMeasurment();
   int8_t getTemp();
 
