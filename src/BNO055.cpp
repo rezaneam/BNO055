@@ -493,7 +493,9 @@ BNO055_raw_measurment_data_t BNO055::getFullMeasurment()
 }
 
 /*!
- *  @brief  Gets all measurments from the sensor (processed) - use this method when using NDOF 
+ *  @brief  Gets all measurments from the sensor (processed) - use this method when using NDOF
+ *  @param  in_mg_scale set true if you wish to receive measurments in mg otherwise the acceleration measurments will be in m/s2
+ *  @param  in_dps_scale set true if you wish to receive measurments in deg/sec otherwise the angle measurments will be in rad/sec
  *  @return structure of all measurments
  */
 BNO055_measurment_data_t BNO055::getFullMeasurment(bool in_mg_scale, bool in_dps_scale)
