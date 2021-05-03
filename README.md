@@ -4,8 +4,8 @@ This library is written based on [Adafruit Unified BNO055 Driver](https://github
   <img width="800px" src="https://www.bosch-sensortec.com/media/boschsensortec/products/smart_sensors/16_19/bosch-sensortec_website-relaunch_stage_bno055_res_800x450.jpg">
 </p>
 
-## What is new 
-Driver is optimized for a better operation with [FreeRTOS](https://www.freertos.org/). Moreover this library includes additional features in the page 1 as follows.
+## What is new in this driver
+Driver is optimized for a better operation with [FreeRTOS](https://www.freertos.org/). Moreover this library includes additional features in the `page 1` as follows.
 - Reading/Writting Accelerometer Range, bandwidth, Operation Mode
 - Reading/Writting Gyroscope Range, bandwidth, Operation Mode
 - Reading/Writting Magnetometer Power Mode, bandwidth, Operation Mode
