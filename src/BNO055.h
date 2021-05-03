@@ -556,7 +556,7 @@ public:
 
   imu::Vector<3> getVector(sensor_type_t sensor_type);
   imu::Quaternion getQuat();
-  BNO055_measurment_data_t getFullMeasurment(bool mg_scale = true, bool dps_scale = true);
+  BNO055_measurment_data_t getFullMeasurment(bool mg_scale, bool dps_scale);
   BNO055_raw_measurment_data_t getFullMeasurment();
   int8_t getTemp();
 
