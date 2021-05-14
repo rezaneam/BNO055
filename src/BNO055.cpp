@@ -54,18 +54,18 @@ bool BNO055::Initialize(BNO055_opmode_t mode, TwoWire &theWire)
   _wire = &theWire;
 
   _address = BNO055_ADDRESS_A;
-  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+  if (read(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
   delay(1000);
-  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+  if (read(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
   _address = BNO055_ADDRESS_B;
-  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+  if (read(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
-  if (read8(BNO055_CHIP_ID_ADDR) == BNO055_ID)
+  if (read(BNO055_CHIP_ID_ADDR) == BNO055_ID)
     return begin(mode);
 
   return false;
@@ -107,11 +107,11 @@ bool BNO055::begin(BNO055_opmode_t mode)
 #endif
 
   /* Make sure we have the right device */
-  uint8_t id = read8(BNO055_CHIP_ID_ADDR);
+  uint8_t id = read(BNO055_CHIP_ID_ADDR);
   if (id != BNO055_ID)
   {
     delay(1000); // hold on for boot
-    id = read8(BNO055_CHIP_ID_ADDR);
+    id = read(BNO055_CHIP_ID_ADDR);
     if (id != BNO055_ID)
       return false; // still not? ok bail
   }
@@ -120,17 +120,17 @@ bool BNO055::begin(BNO055_opmode_t mode)
   setMode(OPERATION_MODE_CONFIG);
 
   /* Reset */
-  write8(BNO055_SYS_TRIGGER_ADDR, 0x20);
+  write(BNO055_SYS_TRIGGER_ADDR, 0x20);
   /* Delay incrased to 30ms due to power issues https://tinyurl.com/y375z699 */
   delay(30);
-  while (read8(BNO055_CHIP_ID_ADDR) != BNO055_ID)
+  while (read(BNO055_CHIP_ID_ADDR) != BNO055_ID)
   {
     delay(10);
   }
   delay(50);
 
   /* Set to normal power mode */
-  write8(BNO055_PWR_MODE_ADDR, POWER_MODE_NORMAL);
+  write(BNO055_PWR_MODE_ADDR, POWER_MODE_NORMAL);
   delay(10);
 
   /* Set the output units */
@@ -140,18 +140,18 @@ bool BNO055::begin(BNO055_opmode_t mode)
                     (0 << 2) | // Euler = Degrees
                     (1 << 1) | // Gyro = Rads
                     (0 << 0);  // Accelerometer = m/s^2
-  write8(BNO055_UNIT_SEL_ADDR, unitsel);
+  write(BNO055_UNIT_SEL_ADDR, unitsel);
   */
 
   /* Configure axis mapping (see section 3.4) */
   /*
-  write8(BNO055_AXIS_MAP_CONFIG_ADDR, REMAP_CONFIG_P2); // P0-P7, Default is P1
+  write(BNO055_AXIS_MAP_CONFIG_ADDR, REMAP_CONFIG_P2); // P0-P7, Default is P1
   delay(10);
-  write8(BNO055_AXIS_MAP_SIGN_ADDR, REMAP_SIGN_P2); // P0-P7, Default is P1
+  write(BNO055_AXIS_MAP_SIGN_ADDR, REMAP_SIGN_P2); // P0-P7, Default is P1
   delay(10);
   */
 
-  write8(BNO055_SYS_TRIGGER_ADDR, 0x0);
+  write(BNO055_SYS_TRIGGER_ADDR, 0x0);
   delay(10);
   /* Set the requested operating mode (see section 3.3) */
   setMode(mode);
@@ -181,7 +181,7 @@ bool BNO055::begin(BNO055_opmode_t mode)
 void BNO055::setMode(BNO055_opmode_t mode)
 {
   _mode = mode;
-  write8(BNO055_OPR_MODE_ADDR, _mode);
+  write(BNO055_OPR_MODE_ADDR, _mode);
   delay(30);
 }
 
@@ -205,7 +205,7 @@ void BNO055::setAxisRemap(
 
   setMode(OPERATION_MODE_CONFIG);
   delay(25);
-  write8(BNO055_AXIS_MAP_CONFIG_ADDR, remapcode);
+  write(BNO055_AXIS_MAP_CONFIG_ADDR, remapcode);
   delay(10);
   /* Set the requested operating mode (see section 3.3) */
   setMode(modeback);
@@ -231,7 +231,7 @@ void BNO055::setAxisSign(BNO055_axis_remap_sign_t remapsign)
 
   setMode(OPERATION_MODE_CONFIG);
   delay(25);
-  write8(BNO055_AXIS_MAP_SIGN_ADDR, remapsign);
+  write(BNO055_AXIS_MAP_SIGN_ADDR, remapsign);
   delay(10);
   /* Set the requested operating mode (see section 3.3) */
   setMode(modeback);
@@ -253,11 +253,11 @@ void BNO055::setExtCrystalUse(boolean usextal)
 
   if (usextal)
   {
-    write8(BNO055_SYS_TRIGGER_ADDR, 0x80);
+    write(BNO055_SYS_TRIGGER_ADDR, 0x80);
   }
   else
   {
-    write8(BNO055_SYS_TRIGGER_ADDR, 0x00);
+    write(BNO055_SYS_TRIGGER_ADDR, 0x00);
   }
   delay(10);
   /* Set the requested operating mode (see section 3.3) */
@@ -278,7 +278,7 @@ void BNO055::getSystemStatus(uint8_t *system_status,
                              uint8_t *self_test_result,
                              uint8_t *system_error)
 {
-  write8(BNO055_PAGE_ID_ADDR, 0);
+  write(BNO055_PAGE_ID_ADDR, 0);
 
   /* System Status (see section 4.3.58)
      0 = Idle
@@ -291,7 +291,7 @@ void BNO055::getSystemStatus(uint8_t *system_status,
    */
 
   if (system_status != 0)
-    *system_status = read8(BNO055_SYS_STAT_ADDR);
+    *system_status = read(BNO055_SYS_STAT_ADDR);
 
   /* Self Test Results
      1 = test passed, 0 = test failed
@@ -305,7 +305,7 @@ void BNO055::getSystemStatus(uint8_t *system_status,
    */
 
   if (self_test_result != 0)
-    *self_test_result = read8(BNO055_SELFTEST_RESULT_ADDR);
+    *self_test_result = read(BNO055_SELFTEST_RESULT_ADDR);
 
   /* System Error (see section 4.3.59)
      0 = No error
@@ -322,7 +322,7 @@ void BNO055::getSystemStatus(uint8_t *system_status,
    */
 
   if (system_error != 0)
-    *system_error = read8(BNO055_SYS_ERR_ADDR);
+    *system_error = read(BNO055_SYS_ERR_ADDR);
 
   delay(200);
 }
@@ -339,19 +339,19 @@ void BNO055::getRevInfo(BNO055_rev_info_t *info)
   memset(info, 0, sizeof(BNO055_rev_info_t));
 
   /* Check the accelerometer revision */
-  info->accel_rev = read8(BNO055_ACCEL_REV_ID_ADDR);
+  info->accel_rev = read(BNO055_ACCEL_REV_ID_ADDR);
 
   /* Check the magnetometer revision */
-  info->mag_rev = read8(BNO055_MAG_REV_ID_ADDR);
+  info->mag_rev = read(BNO055_MAG_REV_ID_ADDR);
 
   /* Check the gyroscope revision */
-  info->gyro_rev = read8(BNO055_GYRO_REV_ID_ADDR);
+  info->gyro_rev = read(BNO055_GYRO_REV_ID_ADDR);
 
   /* Check the SW revision */
-  info->bl_rev = read8(BNO055_BL_REV_ID_ADDR);
+  info->bl_rev = read(BNO055_BL_REV_ID_ADDR);
 
-  a = read8(BNO055_SW_REV_ID_LSB_ADDR);
-  b = read8(BNO055_SW_REV_ID_MSB_ADDR);
+  a = read(BNO055_SW_REV_ID_LSB_ADDR);
+  b = read(BNO055_SW_REV_ID_MSB_ADDR);
   info->sw_rev = (((uint16_t)b) << 8) | ((uint16_t)a);
 }
 
@@ -388,7 +388,7 @@ void BNO055::printSensorInfo()
 void BNO055::getCalibration(uint8_t *sys, uint8_t *gyro,
                             uint8_t *accel, uint8_t *mag)
 {
-  uint8_t calData = read8(BNO055_CALIB_STAT_ADDR);
+  uint8_t calData = read(BNO055_CALIB_STAT_ADDR);
   if (sys != NULL)
   {
     *sys = (calData >> 6) & 0x03;
@@ -417,7 +417,7 @@ void BNO055::getCalibration(uint8_t *sys, uint8_t *gyro,
 BNO055_calibration_state_t BNO055::getCalibration()
 {
   BNO055_calibration_state_t cal;
-  uint8_t calData = read8(BNO055_CALIB_STAT_ADDR);
+  uint8_t calData = read(BNO055_CALIB_STAT_ADDR);
 
   cal.SystemCalibrationState = (calData >> 6) & 0x03;
   cal.GyroscropeCalibrationState = (calData >> 4) & 0x03;
@@ -433,7 +433,7 @@ BNO055_calibration_state_t BNO055::getCalibration()
  */
 int8_t BNO055::getTemp()
 {
-  int8_t temp = (int8_t)(read8(BNO055_TEMP_ADDR));
+  int8_t temp = (int8_t)(read(BNO055_TEMP_ADDR));
   return temp;
 }
 
@@ -447,43 +447,43 @@ BNO055_raw_measurment_data_t BNO055::getFullMeasurment()
   uint8_t buffer[6];
 
   // Read Accelerometer measurment
-  readLen((BNO055_reg_t)BNO055_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
   values.Acceleration.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.Acceleration.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.Acceleration.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   // Read Gyroscope measurment
-  readLen((BNO055_reg_t)BNO055_GYRO_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_GYRO_DATA_X_LSB_ADDR, buffer, 6);
   values.AngularVelocity.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.AngularVelocity.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.AngularVelocity.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   // Read Magnetometer measurment
-  readLen((BNO055_reg_t)BNO055_MAG_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_MAG_DATA_X_LSB_ADDR, buffer, 6);
   values.MagneticField.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.MagneticField.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.MagneticField.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   // Read Linear Acceleration
-  readLen((BNO055_reg_t)BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
   values.LinearAcceleration.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.LinearAcceleration.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.LinearAcceleration.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   // Read Gravity
-  readLen((BNO055_reg_t)BNO055_GRAVITY_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_GRAVITY_DATA_X_LSB_ADDR, buffer, 6);
   values.GravityVector.X = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.GravityVector.Y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.GravityVector.Z = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   // Read Euler Angles
-  readLen((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
   values.EulerAngles.Heading = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.EulerAngles.Roll = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.EulerAngles.Pitch = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
 
   // Read quaternion
-  readLen(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
+  read(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
   values.Quaternion.W = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   values.Quaternion.X = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
   values.Quaternion.Y = ((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8);
@@ -506,43 +506,43 @@ BNO055_measurment_data_t BNO055::getFullMeasurment(bool in_mg_scale, bool in_dps
   double acceleration_scale = in_mg_scale ? 1 : 0.01;
   double angle_scale = in_dps_scale ? (1.0 / 16) : (1.0 / 900);
   // Read Accelerometer measurment
-  readLen((BNO055_reg_t)BNO055_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
   values.Acceleration.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * acceleration_scale;
   values.Acceleration.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * acceleration_scale;
   values.Acceleration.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * acceleration_scale;
 
   // Read Gyroscope measurment
-  readLen((BNO055_reg_t)BNO055_GYRO_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_GYRO_DATA_X_LSB_ADDR, buffer, 6);
   values.AngularVelocity.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * angle_scale;
   values.AngularVelocity.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * angle_scale;
   values.AngularVelocity.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * angle_scale;
 
   // Read Magnetometer measurment
-  readLen((BNO055_reg_t)BNO055_MAG_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_MAG_DATA_X_LSB_ADDR, buffer, 6);
   values.MagneticField.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) / 16;
   values.MagneticField.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) / 16;
   values.MagneticField.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) / 16;
 
   // Read Linear Acceleration
-  readLen((BNO055_reg_t)BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_LINEAR_ACCEL_DATA_X_LSB_ADDR, buffer, 6);
   values.LinearAcceleration.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * acceleration_scale;
   values.LinearAcceleration.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * acceleration_scale;
   values.LinearAcceleration.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * acceleration_scale;
 
   // Read Gravity
-  readLen((BNO055_reg_t)BNO055_GRAVITY_DATA_X_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_GRAVITY_DATA_X_LSB_ADDR, buffer, 6);
   values.GravityVector.X = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * acceleration_scale;
   values.GravityVector.Y = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * acceleration_scale;
   values.GravityVector.Z = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * acceleration_scale;
 
   // Read Euler Angles
-  readLen((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
+  read((BNO055_reg_t)BNO055_EULER_H_LSB_ADDR, buffer, 6);
   values.EulerAngles.Heading = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) * angle_scale;
   values.EulerAngles.Roll = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) * angle_scale;
   values.EulerAngles.Pitch = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) * angle_scale;
 
   // Read quaternion
-  readLen(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
+  read(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
   values.Quaternion.W = (double)(((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8)) / 16384;
   values.Quaternion.X = (double)(((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8)) / 16384;
   values.Quaternion.Y = (double)(((int16_t)buffer[4]) | (((int16_t)buffer[5]) << 8)) / 16384;
@@ -573,7 +573,7 @@ imu::Vector<3> BNO055::getVector(sensor_type_t sensor_type)
   x = y = z = 0;
 
   /* Read vector data (6 bytes) */
-  readLen((BNO055_reg_t)sensor_type, buffer, 6);
+  read((BNO055_reg_t)sensor_type, buffer, 6);
 
   x = ((int16_t)buffer[0]) | (((int16_t)buffer[1]) << 8);
   y = ((int16_t)buffer[2]) | (((int16_t)buffer[3]) << 8);
@@ -639,7 +639,7 @@ imu::Quaternion BNO055::getQuat()
   x = y = z = w = 0;
 
   /* Read quat data (8 bytes) */
-  readLen(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
+  read(BNO055_QUATERNION_DATA_W_LSB_ADDR, buffer, 8);
   w = (((uint16_t)buffer[1]) << 8) | ((uint16_t)buffer[0]);
   x = (((uint16_t)buffer[3]) << 8) | ((uint16_t)buffer[2]);
   y = (((uint16_t)buffer[5]) << 8) | ((uint16_t)buffer[4]);
@@ -669,7 +669,7 @@ bool BNO055::getSensorOffsets(uint8_t *calibData)
     BNO055_opmode_t lastMode = _mode;
     setMode(OPERATION_MODE_CONFIG);
 
-    readLen(ACCEL_OFFSET_X_LSB_ADDR, calibData, NUM_BNO055_OFFSET_REGISTERS);
+    read(ACCEL_OFFSET_X_LSB_ADDR, calibData, NUM_BNO055_OFFSET_REGISTERS);
 
     setMode(lastMode);
     return true;
@@ -697,20 +697,20 @@ bool BNO055::getSensorOffsets(
        +/-4g  = +/- 4000 mg
        +/-8g  = +/- 8000 mg
        +/-1§g = +/- 16000 mg */
-    offsets_type.accel_offset_x = (read8(ACCEL_OFFSET_X_MSB_ADDR) << 8) |
-                                  (read8(ACCEL_OFFSET_X_LSB_ADDR));
-    offsets_type.accel_offset_y = (read8(ACCEL_OFFSET_Y_MSB_ADDR) << 8) |
-                                  (read8(ACCEL_OFFSET_Y_LSB_ADDR));
-    offsets_type.accel_offset_z = (read8(ACCEL_OFFSET_Z_MSB_ADDR) << 8) |
-                                  (read8(ACCEL_OFFSET_Z_LSB_ADDR));
+    offsets_type.accel_offset_x = (read(ACCEL_OFFSET_X_MSB_ADDR) << 8) |
+                                  (read(ACCEL_OFFSET_X_LSB_ADDR));
+    offsets_type.accel_offset_y = (read(ACCEL_OFFSET_Y_MSB_ADDR) << 8) |
+                                  (read(ACCEL_OFFSET_Y_LSB_ADDR));
+    offsets_type.accel_offset_z = (read(ACCEL_OFFSET_Z_MSB_ADDR) << 8) |
+                                  (read(ACCEL_OFFSET_Z_LSB_ADDR));
 
     /* Magnetometer offset range = +/- 6400 LSB where 1uT = 16 LSB */
     offsets_type.mag_offset_x =
-        (read8(MAG_OFFSET_X_MSB_ADDR) << 8) | (read8(MAG_OFFSET_X_LSB_ADDR));
+        (read(MAG_OFFSET_X_MSB_ADDR) << 8) | (read(MAG_OFFSET_X_LSB_ADDR));
     offsets_type.mag_offset_y =
-        (read8(MAG_OFFSET_Y_MSB_ADDR) << 8) | (read8(MAG_OFFSET_Y_LSB_ADDR));
+        (read(MAG_OFFSET_Y_MSB_ADDR) << 8) | (read(MAG_OFFSET_Y_LSB_ADDR));
     offsets_type.mag_offset_z =
-        (read8(MAG_OFFSET_Z_MSB_ADDR) << 8) | (read8(MAG_OFFSET_Z_LSB_ADDR));
+        (read(MAG_OFFSET_Z_MSB_ADDR) << 8) | (read(MAG_OFFSET_Z_LSB_ADDR));
 
     /* Gyro offset range depends on the DPS range:
       2000 dps = +/- 32000 LSB
@@ -720,19 +720,19 @@ bool BNO055::getSensorOffsets(
        125 dps = +/- 2000 LSB
        ... where 1 DPS = 16 LSB */
     offsets_type.gyro_offset_x =
-        (read8(GYRO_OFFSET_X_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_X_LSB_ADDR));
+        (read(GYRO_OFFSET_X_MSB_ADDR) << 8) | (read(GYRO_OFFSET_X_LSB_ADDR));
     offsets_type.gyro_offset_y =
-        (read8(GYRO_OFFSET_Y_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_Y_LSB_ADDR));
+        (read(GYRO_OFFSET_Y_MSB_ADDR) << 8) | (read(GYRO_OFFSET_Y_LSB_ADDR));
     offsets_type.gyro_offset_z =
-        (read8(GYRO_OFFSET_Z_MSB_ADDR) << 8) | (read8(GYRO_OFFSET_Z_LSB_ADDR));
+        (read(GYRO_OFFSET_Z_MSB_ADDR) << 8) | (read(GYRO_OFFSET_Z_LSB_ADDR));
 
     /* Accelerometer radius = +/- 1000 LSB */
     offsets_type.accel_radius =
-        (read8(ACCEL_RADIUS_MSB_ADDR) << 8) | (read8(ACCEL_RADIUS_LSB_ADDR));
+        (read(ACCEL_RADIUS_MSB_ADDR) << 8) | (read(ACCEL_RADIUS_LSB_ADDR));
 
     /* Magnetometer radius = +/- 960 LSB */
     offsets_type.mag_radius =
-        (read8(MAG_RADIUS_MSB_ADDR) << 8) | (read8(MAG_RADIUS_LSB_ADDR));
+        (read(MAG_RADIUS_MSB_ADDR) << 8) | (read(MAG_RADIUS_LSB_ADDR));
 
     setMode(lastMode);
     return true;
@@ -757,32 +757,32 @@ void BNO055::setSensorOffsets(const uint8_t *calibData)
      changes the configuration. */
 
   /* A writeLen() would make this much cleaner */
-  write8(ACCEL_OFFSET_X_LSB_ADDR, calibData[0]);
-  write8(ACCEL_OFFSET_X_MSB_ADDR, calibData[1]);
-  write8(ACCEL_OFFSET_Y_LSB_ADDR, calibData[2]);
-  write8(ACCEL_OFFSET_Y_MSB_ADDR, calibData[3]);
-  write8(ACCEL_OFFSET_Z_LSB_ADDR, calibData[4]);
-  write8(ACCEL_OFFSET_Z_MSB_ADDR, calibData[5]);
+  write(ACCEL_OFFSET_X_LSB_ADDR, calibData[0]);
+  write(ACCEL_OFFSET_X_MSB_ADDR, calibData[1]);
+  write(ACCEL_OFFSET_Y_LSB_ADDR, calibData[2]);
+  write(ACCEL_OFFSET_Y_MSB_ADDR, calibData[3]);
+  write(ACCEL_OFFSET_Z_LSB_ADDR, calibData[4]);
+  write(ACCEL_OFFSET_Z_MSB_ADDR, calibData[5]);
 
-  write8(MAG_OFFSET_X_LSB_ADDR, calibData[6]);
-  write8(MAG_OFFSET_X_MSB_ADDR, calibData[7]);
-  write8(MAG_OFFSET_Y_LSB_ADDR, calibData[8]);
-  write8(MAG_OFFSET_Y_MSB_ADDR, calibData[9]);
-  write8(MAG_OFFSET_Z_LSB_ADDR, calibData[10]);
-  write8(MAG_OFFSET_Z_MSB_ADDR, calibData[11]);
+  write(MAG_OFFSET_X_LSB_ADDR, calibData[6]);
+  write(MAG_OFFSET_X_MSB_ADDR, calibData[7]);
+  write(MAG_OFFSET_Y_LSB_ADDR, calibData[8]);
+  write(MAG_OFFSET_Y_MSB_ADDR, calibData[9]);
+  write(MAG_OFFSET_Z_LSB_ADDR, calibData[10]);
+  write(MAG_OFFSET_Z_MSB_ADDR, calibData[11]);
 
-  write8(GYRO_OFFSET_X_LSB_ADDR, calibData[12]);
-  write8(GYRO_OFFSET_X_MSB_ADDR, calibData[13]);
-  write8(GYRO_OFFSET_Y_LSB_ADDR, calibData[14]);
-  write8(GYRO_OFFSET_Y_MSB_ADDR, calibData[15]);
-  write8(GYRO_OFFSET_Z_LSB_ADDR, calibData[16]);
-  write8(GYRO_OFFSET_Z_MSB_ADDR, calibData[17]);
+  write(GYRO_OFFSET_X_LSB_ADDR, calibData[12]);
+  write(GYRO_OFFSET_X_MSB_ADDR, calibData[13]);
+  write(GYRO_OFFSET_Y_LSB_ADDR, calibData[14]);
+  write(GYRO_OFFSET_Y_MSB_ADDR, calibData[15]);
+  write(GYRO_OFFSET_Z_LSB_ADDR, calibData[16]);
+  write(GYRO_OFFSET_Z_MSB_ADDR, calibData[17]);
 
-  write8(ACCEL_RADIUS_LSB_ADDR, calibData[18]);
-  write8(ACCEL_RADIUS_MSB_ADDR, calibData[19]);
+  write(ACCEL_RADIUS_LSB_ADDR, calibData[18]);
+  write(ACCEL_RADIUS_MSB_ADDR, calibData[19]);
 
-  write8(MAG_RADIUS_LSB_ADDR, calibData[20]);
-  write8(MAG_RADIUS_MSB_ADDR, calibData[21]);
+  write(MAG_RADIUS_LSB_ADDR, calibData[20]);
+  write(MAG_RADIUS_MSB_ADDR, calibData[21]);
 
   setMode(lastMode);
 }
@@ -814,32 +814,32 @@ void BNO055::setSensorOffsets(
      Therefore the last byte must be written whenever the user wants to
      changes the configuration. */
 
-  write8(ACCEL_OFFSET_X_LSB_ADDR, (offsets_type.accel_offset_x) & 0x0FF);
-  write8(ACCEL_OFFSET_X_MSB_ADDR, (offsets_type.accel_offset_x >> 8) & 0x0FF);
-  write8(ACCEL_OFFSET_Y_LSB_ADDR, (offsets_type.accel_offset_y) & 0x0FF);
-  write8(ACCEL_OFFSET_Y_MSB_ADDR, (offsets_type.accel_offset_y >> 8) & 0x0FF);
-  write8(ACCEL_OFFSET_Z_LSB_ADDR, (offsets_type.accel_offset_z) & 0x0FF);
-  write8(ACCEL_OFFSET_Z_MSB_ADDR, (offsets_type.accel_offset_z >> 8) & 0x0FF);
+  write(ACCEL_OFFSET_X_LSB_ADDR, (offsets_type.accel_offset_x) & 0x0FF);
+  write(ACCEL_OFFSET_X_MSB_ADDR, (offsets_type.accel_offset_x >> 8) & 0x0FF);
+  write(ACCEL_OFFSET_Y_LSB_ADDR, (offsets_type.accel_offset_y) & 0x0FF);
+  write(ACCEL_OFFSET_Y_MSB_ADDR, (offsets_type.accel_offset_y >> 8) & 0x0FF);
+  write(ACCEL_OFFSET_Z_LSB_ADDR, (offsets_type.accel_offset_z) & 0x0FF);
+  write(ACCEL_OFFSET_Z_MSB_ADDR, (offsets_type.accel_offset_z >> 8) & 0x0FF);
 
-  write8(MAG_OFFSET_X_LSB_ADDR, (offsets_type.mag_offset_x) & 0x0FF);
-  write8(MAG_OFFSET_X_MSB_ADDR, (offsets_type.mag_offset_x >> 8) & 0x0FF);
-  write8(MAG_OFFSET_Y_LSB_ADDR, (offsets_type.mag_offset_y) & 0x0FF);
-  write8(MAG_OFFSET_Y_MSB_ADDR, (offsets_type.mag_offset_y >> 8) & 0x0FF);
-  write8(MAG_OFFSET_Z_LSB_ADDR, (offsets_type.mag_offset_z) & 0x0FF);
-  write8(MAG_OFFSET_Z_MSB_ADDR, (offsets_type.mag_offset_z >> 8) & 0x0FF);
+  write(MAG_OFFSET_X_LSB_ADDR, (offsets_type.mag_offset_x) & 0x0FF);
+  write(MAG_OFFSET_X_MSB_ADDR, (offsets_type.mag_offset_x >> 8) & 0x0FF);
+  write(MAG_OFFSET_Y_LSB_ADDR, (offsets_type.mag_offset_y) & 0x0FF);
+  write(MAG_OFFSET_Y_MSB_ADDR, (offsets_type.mag_offset_y >> 8) & 0x0FF);
+  write(MAG_OFFSET_Z_LSB_ADDR, (offsets_type.mag_offset_z) & 0x0FF);
+  write(MAG_OFFSET_Z_MSB_ADDR, (offsets_type.mag_offset_z >> 8) & 0x0FF);
 
-  write8(GYRO_OFFSET_X_LSB_ADDR, (offsets_type.gyro_offset_x) & 0x0FF);
-  write8(GYRO_OFFSET_X_MSB_ADDR, (offsets_type.gyro_offset_x >> 8) & 0x0FF);
-  write8(GYRO_OFFSET_Y_LSB_ADDR, (offsets_type.gyro_offset_y) & 0x0FF);
-  write8(GYRO_OFFSET_Y_MSB_ADDR, (offsets_type.gyro_offset_y >> 8) & 0x0FF);
-  write8(GYRO_OFFSET_Z_LSB_ADDR, (offsets_type.gyro_offset_z) & 0x0FF);
-  write8(GYRO_OFFSET_Z_MSB_ADDR, (offsets_type.gyro_offset_z >> 8) & 0x0FF);
+  write(GYRO_OFFSET_X_LSB_ADDR, (offsets_type.gyro_offset_x) & 0x0FF);
+  write(GYRO_OFFSET_X_MSB_ADDR, (offsets_type.gyro_offset_x >> 8) & 0x0FF);
+  write(GYRO_OFFSET_Y_LSB_ADDR, (offsets_type.gyro_offset_y) & 0x0FF);
+  write(GYRO_OFFSET_Y_MSB_ADDR, (offsets_type.gyro_offset_y >> 8) & 0x0FF);
+  write(GYRO_OFFSET_Z_LSB_ADDR, (offsets_type.gyro_offset_z) & 0x0FF);
+  write(GYRO_OFFSET_Z_MSB_ADDR, (offsets_type.gyro_offset_z >> 8) & 0x0FF);
 
-  write8(ACCEL_RADIUS_LSB_ADDR, (offsets_type.accel_radius) & 0x0FF);
-  write8(ACCEL_RADIUS_MSB_ADDR, (offsets_type.accel_radius >> 8) & 0x0FF);
+  write(ACCEL_RADIUS_LSB_ADDR, (offsets_type.accel_radius) & 0x0FF);
+  write(ACCEL_RADIUS_MSB_ADDR, (offsets_type.accel_radius >> 8) & 0x0FF);
 
-  write8(MAG_RADIUS_LSB_ADDR, (offsets_type.mag_radius) & 0x0FF);
-  write8(MAG_RADIUS_MSB_ADDR, (offsets_type.mag_radius >> 8) & 0x0FF);
+  write(MAG_RADIUS_LSB_ADDR, (offsets_type.mag_radius) & 0x0FF);
+  write(MAG_RADIUS_MSB_ADDR, (offsets_type.mag_radius >> 8) & 0x0FF);
 
   setMode(lastMode);
 }
@@ -885,7 +885,7 @@ void BNO055::enterSuspendMode()
   /* Switch to config mode (just in case since this is the default) */
   setMode(OPERATION_MODE_CONFIG);
   delay(25);
-  write8(BNO055_PWR_MODE_ADDR, 0x02);
+  write(BNO055_PWR_MODE_ADDR, 0x02);
   /* Set the requested operating mode (see section 3.3) */
   setMode(modeback);
   delay(20);
@@ -901,7 +901,7 @@ void BNO055::enterNormalMode()
   /* Switch to config mode (just in case since this is the default) */
   setMode(OPERATION_MODE_CONFIG);
   delay(25);
-  write8(BNO055_PWR_MODE_ADDR, 0x00);
+  write(BNO055_PWR_MODE_ADDR, 0x00);
   /* Set the requested operating mode (see section 3.3) */
   setMode(modeback);
   delay(20);
@@ -914,7 +914,7 @@ void BNO055::enterNormalMode()
  */
 BNO055::BNO_acc_range_t BNO055::getAccelerometerRange()
 {
-  uint8_t value = read8(ACC_CONFIG_ADDR, PAGE_ONE) & 0x03;
+  uint8_t value = read(ACC_CONFIG_ADDR, PAGE_ONE) & 0x03;
   return (BNO_acc_range_t)value;
 }
 
@@ -924,7 +924,7 @@ BNO055::BNO_acc_range_t BNO055::getAccelerometerRange()
  */
 BNO055::BNO_acc_BW_t BNO055::getAccelerometerBW()
 {
-  uint8_t value = (read8(ACC_CONFIG_ADDR, PAGE_ONE) >> 2) & 0x07;
+  uint8_t value = (read(ACC_CONFIG_ADDR, PAGE_ONE) >> 2) & 0x07;
   return (BNO_acc_BW_t)value;
 }
 
@@ -934,7 +934,7 @@ BNO055::BNO_acc_BW_t BNO055::getAccelerometerBW()
  */
 BNO055::BNO_acc_operation_mode_t BNO055::getAccelerometerOperationMode()
 {
-  uint8_t value = (read8(ACC_CONFIG_ADDR, PAGE_ONE) >> 5) & 0x07;
+  uint8_t value = (read(ACC_CONFIG_ADDR, PAGE_ONE) >> 5) & 0x07;
   return (BNO_acc_operation_mode_t)value;
 }
 
@@ -944,9 +944,9 @@ BNO055::BNO_acc_operation_mode_t BNO055::getAccelerometerOperationMode()
  */
 void BNO055::setAccelerometerRange(BNO_acc_range_t range)
 {
-  uint8_t value = read8(ACC_CONFIG_ADDR, PAGE_ONE);
+  uint8_t value = read(ACC_CONFIG_ADDR, PAGE_ONE);
   value = (value & 0xFC) | range;
-  write8(ACC_CONFIG_ADDR, value, PAGE_ONE);
+  write(ACC_CONFIG_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -955,9 +955,9 @@ void BNO055::setAccelerometerRange(BNO_acc_range_t range)
  */
 void BNO055::setAccelerometerBW(BNO_acc_BW_t bandwitdh)
 {
-  uint8_t value = read8(ACC_CONFIG_ADDR, PAGE_ONE);
+  uint8_t value = read(ACC_CONFIG_ADDR, PAGE_ONE);
   value = (value & 0xE3) | (bandwitdh << 2);
-  write8(ACC_CONFIG_ADDR, value, PAGE_ONE);
+  write(ACC_CONFIG_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -966,9 +966,9 @@ void BNO055::setAccelerometerBW(BNO_acc_BW_t bandwitdh)
  */
 void BNO055::setAccelerometerOperationMode(BNO_acc_operation_mode_t mode)
 {
-  uint8_t value = read8(ACC_CONFIG_ADDR, PAGE_ONE);
+  uint8_t value = read(ACC_CONFIG_ADDR, PAGE_ONE);
   value = (value & 0x1F) | (mode << 5);
-  write8(ACC_CONFIG_ADDR, value, PAGE_ONE);
+  write(ACC_CONFIG_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -977,7 +977,7 @@ void BNO055::setAccelerometerOperationMode(BNO_acc_operation_mode_t mode)
  */
 BNO055::BNO_gyr_range_t BNO055::getGyroscopeRange()
 {
-  uint8_t value = read8(GYR_CONFIG_0_ADDR, PAGE_ONE) & 0x07;
+  uint8_t value = read(GYR_CONFIG_0_ADDR, PAGE_ONE) & 0x07;
   return (BNO_gyr_range_t)value;
 }
 
@@ -987,7 +987,7 @@ BNO055::BNO_gyr_range_t BNO055::getGyroscopeRange()
  */
 BNO055::BNO_gyr_BW_t BNO055::getGyroscopeBW()
 {
-  uint8_t value = (read8(GYR_CONFIG_0_ADDR, PAGE_ONE) >> 3) & 0x07;
+  uint8_t value = (read(GYR_CONFIG_0_ADDR, PAGE_ONE) >> 3) & 0x07;
   return (BNO_gyr_BW_t)value;
 }
 
@@ -997,7 +997,7 @@ BNO055::BNO_gyr_BW_t BNO055::getGyroscopeBW()
  */
 BNO055::BNO_gyr_operation_mode_t BNO055::getGyroscopeOperationMode()
 {
-  uint8_t value = read8(GYR_CONFIG_1_ADDR, PAGE_ONE) & 0x07;
+  uint8_t value = read(GYR_CONFIG_1_ADDR, PAGE_ONE) & 0x07;
   return (BNO_gyr_operation_mode_t)value;
 }
 
@@ -1007,9 +1007,9 @@ BNO055::BNO_gyr_operation_mode_t BNO055::getGyroscopeOperationMode()
  */
 void BNO055::setGyroscopeRange(BNO_gyr_range_t range)
 {
-  uint8_t value = read8(GYR_CONFIG_0_ADDR, PAGE_ONE);
+  uint8_t value = read(GYR_CONFIG_0_ADDR, PAGE_ONE);
   value = (value & 0xF8) | range;
-  write8(GYR_CONFIG_0_ADDR, value, PAGE_ONE);
+  write(GYR_CONFIG_0_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1018,9 +1018,9 @@ void BNO055::setGyroscopeRange(BNO_gyr_range_t range)
  */
 void BNO055::setGyroscopeBW(BNO_gyr_BW_t bandwidth)
 {
-  uint8_t value = read8(GYR_CONFIG_0_ADDR, PAGE_ONE);
+  uint8_t value = read(GYR_CONFIG_0_ADDR, PAGE_ONE);
   value = (value & 0xC7) | (bandwidth << 3);
-  write8(GYR_CONFIG_0_ADDR, value, PAGE_ONE);
+  write(GYR_CONFIG_0_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1029,9 +1029,9 @@ void BNO055::setGyroscopeBW(BNO_gyr_BW_t bandwidth)
  */
 void BNO055::setGyroscopeOperationMode(BNO_gyr_operation_mode_t mode)
 {
-  uint8_t value = read8(GYR_CONFIG_1_ADDR, PAGE_ONE);
+  uint8_t value = read(GYR_CONFIG_1_ADDR, PAGE_ONE);
   value = (value & 0xF8) | mode;
-  write8(GYR_CONFIG_1_ADDR, value, PAGE_ONE);
+  write(GYR_CONFIG_1_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1040,7 +1040,7 @@ void BNO055::setGyroscopeOperationMode(BNO_gyr_operation_mode_t mode)
  */
 BNO055::BNO_mag_operation_mode_t BNO055::getMagnetometerOperationMode()
 {
-  uint8_t value = (read8(MAG_CONFIG_ADDR, PAGE_ONE) >> 3) & 0x03;
+  uint8_t value = (read(MAG_CONFIG_ADDR, PAGE_ONE) >> 3) & 0x03;
   return (BNO_mag_operation_mode_t)value;
 }
 
@@ -1050,7 +1050,7 @@ BNO055::BNO_mag_operation_mode_t BNO055::getMagnetometerOperationMode()
  */
 BNO055::BNO_mag_power_mode_t BNO055::getMagnetometerPowerMode()
 {
-  uint8_t value = (read8(MAG_CONFIG_ADDR, PAGE_ONE) >> 5) & 0x03;
+  uint8_t value = (read(MAG_CONFIG_ADDR, PAGE_ONE) >> 5) & 0x03;
   return (BNO_mag_power_mode_t)value;
 }
 
@@ -1060,7 +1060,7 @@ BNO055::BNO_mag_power_mode_t BNO055::getMagnetometerPowerMode()
  */
 BNO055::BNO_mag_BW_t BNO055::getMagnetometerBW()
 {
-  uint8_t value = read8(MAG_CONFIG_ADDR, PAGE_ONE) & 0x07;
+  uint8_t value = read(MAG_CONFIG_ADDR, PAGE_ONE) & 0x07;
   return (BNO_mag_BW_t)value;
 }
 
@@ -1070,9 +1070,9 @@ BNO055::BNO_mag_BW_t BNO055::getMagnetometerBW()
  */
 void BNO055::setMagnetometerPowerMode(BNO_mag_power_mode_t mode)
 {
-  uint8_t value = read8(MAG_CONFIG_ADDR, PAGE_ONE);
+  uint8_t value = read(MAG_CONFIG_ADDR, PAGE_ONE);
   value = (value & 0x9F) | (mode << 5);
-  write8(MAG_CONFIG_ADDR, value, PAGE_ONE);
+  write(MAG_CONFIG_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1081,9 +1081,9 @@ void BNO055::setMagnetometerPowerMode(BNO_mag_power_mode_t mode)
  */
 void BNO055::setMagnetometerOperationMode(BNO_mag_operation_mode_t mode)
 {
-  uint8_t value = read8(MAG_CONFIG_ADDR, PAGE_ONE);
+  uint8_t value = read(MAG_CONFIG_ADDR, PAGE_ONE);
   value = (value & 0xE7) | (mode << 3);
-  write8(MAG_CONFIG_ADDR, value, PAGE_ONE);
+  write(MAG_CONFIG_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1092,9 +1092,9 @@ void BNO055::setMagnetometerOperationMode(BNO_mag_operation_mode_t mode)
  */
 void BNO055::settMagnetometerBW(BNO_mag_BW_t bandwidth)
 {
-  uint8_t value = read8(MAG_CONFIG_ADDR, PAGE_ONE);
+  uint8_t value = read(MAG_CONFIG_ADDR, PAGE_ONE);
   value = (value & 0xF8) | bandwidth;
-  write8(MAG_CONFIG_ADDR, value, PAGE_ONE);
+  write(MAG_CONFIG_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1103,7 +1103,7 @@ void BNO055::settMagnetometerBW(BNO_mag_BW_t bandwidth)
  */
 BNO055::BNO_interrupts_t BNO055::getExternalInterruptEnable()
 {
-  uint8_t value = read8(INT_MASK_ADDR, PAGE_ONE);
+  uint8_t value = read(INT_MASK_ADDR, PAGE_ONE);
   return (BNO_interrupts_t)value;
 }
 
@@ -1115,7 +1115,7 @@ BNO055::BNO_interrupts_t BNO055::getExternalInterruptEnable()
  */
 void BNO055::setExternalInterruptEnable(BNO_interrupts_t status)
 {
-  write8(INT_MASK_ADDR, status, PAGE_ONE);
+  write(INT_MASK_ADDR, status, PAGE_ONE);
 }
 
 /*!
@@ -1124,7 +1124,7 @@ void BNO055::setExternalInterruptEnable(BNO_interrupts_t status)
  */
 BNO055::BNO_interrupts_t BNO055::getInterruptEnable()
 {
-  uint8_t value = read8(INT_EN_ADDR, PAGE_ONE);
+  uint8_t value = read(INT_EN_ADDR, PAGE_ONE);
   return (BNO_interrupts_t)value;
 }
 
@@ -1136,7 +1136,7 @@ BNO055::BNO_interrupts_t BNO055::getInterruptEnable()
  */
 void BNO055::setInterruptEnable(BNO_interrupts_t status)
 {
-  write8(INT_EN_ADDR, status, PAGE_ONE);
+  write(INT_EN_ADDR, status, PAGE_ONE);
 }
 
 /*!
@@ -1144,7 +1144,7 @@ void BNO055::setInterruptEnable(BNO_interrupts_t status)
  */
 void BNO055::disableInterruptEnable()
 {
-  write8(INT_EN_ADDR, 0x00, PAGE_ONE);
+  write(INT_EN_ADDR, 0x00, PAGE_ONE);
 }
 
 /*!
@@ -1152,7 +1152,7 @@ void BNO055::disableInterruptEnable()
  */
 void BNO055::disableExternalInterruptEnable()
 {
-  write8(INT_MASK_ADDR, 0x00, PAGE_ONE);
+  write(INT_MASK_ADDR, 0x00, PAGE_ONE);
 }
 
 /*!
@@ -1161,7 +1161,7 @@ void BNO055::disableExternalInterruptEnable()
  */
 uint8_t BNO055::getAccelerometerAnyMotionThreshold()
 {
-  return read8(ACC_AM_THRES_ADDR, PAGE_ONE);
+  return read(ACC_AM_THRES_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1171,7 +1171,7 @@ uint8_t BNO055::getAccelerometerAnyMotionThreshold()
 float BNO055::getAccelerometerAnyMotionThreshold_mg()
 {
   BNO_acc_range_t range = getAccelerometerRange();
-  uint8_t value = read8(ACC_AM_THRES_ADDR, PAGE_ONE);
+  uint8_t value = read(ACC_AM_THRES_ADDR, PAGE_ONE);
   switch (range)
   {
   case BNO_acc_range_t::G_02:
@@ -1197,7 +1197,7 @@ float BNO055::getAccelerometerAnyMotionThreshold_mg()
  */
 void BNO055::setAccelerometerAnyMotionThreshold(uint8_t threshold)
 {
-  write8(ACC_AM_THRES_ADDR, threshold, PAGE_ONE);
+  write(ACC_AM_THRES_ADDR, threshold, PAGE_ONE);
 }
 
 /*!
@@ -1226,7 +1226,7 @@ void BNO055::setAccelerometerAnyMotionThreshold(float thr)
     value = 0;
     break;
   }
-  write8(ACC_AM_THRES_ADDR, value, PAGE_ONE);
+  write(ACC_AM_THRES_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1235,7 +1235,7 @@ void BNO055::setAccelerometerAnyMotionThreshold(float thr)
  */
 BNO055::BNO_interrupts_t BNO055::readInterruptSource()
 {
-  return (BNO_interrupts_t)read8(BNO055_INTR_STAT_ADDR, PAGE_ZERO);
+  return (BNO_interrupts_t)read(BNO055_INTR_STAT_ADDR, PAGE_ZERO);
 }
 
 /*!
@@ -1244,7 +1244,7 @@ BNO055::BNO_interrupts_t BNO055::readInterruptSource()
  */
 BNO055::BNO_acc_interrupt_settings_t BNO055::getAccelerometerInterruptSettings()
 {
-  return (BNO_acc_interrupt_settings_t)read8(ACC_INT_SETTINGS_ADDR, PAGE_ONE);
+  return (BNO_acc_interrupt_settings_t)read(ACC_INT_SETTINGS_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1253,7 +1253,7 @@ BNO055::BNO_acc_interrupt_settings_t BNO055::getAccelerometerInterruptSettings()
  */
 void BNO055::setAccelerometerInterruptSettings(BNO_acc_interrupt_settings_t setting)
 {
-  write8(ACC_INT_SETTINGS_ADDR, setting, PAGE_ONE);
+  write(ACC_INT_SETTINGS_ADDR, setting, PAGE_ONE);
 }
 
 /*!
@@ -1262,7 +1262,7 @@ void BNO055::setAccelerometerInterruptSettings(BNO_acc_interrupt_settings_t sett
  */
 uint8_t BNO055::getAccelerometerShockDuration()
 {
-  return read8(ACC_HG_DURATION_ADDR, PAGE_ONE);
+  return read(ACC_HG_DURATION_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1271,7 +1271,7 @@ uint8_t BNO055::getAccelerometerShockDuration()
  */
 void BNO055::setAccelerometerShockDuration(uint8_t duration)
 {
-  write8(ACC_HG_DURATION_ADDR, duration, PAGE_ONE);
+  write(ACC_HG_DURATION_ADDR, duration, PAGE_ONE);
 }
 
 /*!
@@ -1280,7 +1280,7 @@ void BNO055::setAccelerometerShockDuration(uint8_t duration)
  */
 uint8_t BNO055::getAccelerometerShockThreshold()
 {
-  return read8(ACC_HG_THRES_ADDR, PAGE_ONE);
+  return read(ACC_HG_THRES_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1289,7 +1289,7 @@ uint8_t BNO055::getAccelerometerShockThreshold()
  */
 void BNO055::setAccelerometerShockThreshold(uint8_t threshold)
 {
-  write8(ACC_HG_THRES_ADDR, threshold, PAGE_ONE);
+  write(ACC_HG_THRES_ADDR, threshold, PAGE_ONE);
 }
 
 /*!
@@ -1298,7 +1298,7 @@ void BNO055::setAccelerometerShockThreshold(uint8_t threshold)
  */
 uint8_t BNO055::getAccelerometerNoSlowMotionThreshold()
 {
-  return read8(ACC_NM_THRES_ADDR, PAGE_ONE);
+  return read(ACC_NM_THRES_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1308,7 +1308,7 @@ uint8_t BNO055::getAccelerometerNoSlowMotionThreshold()
 float BNO055::getAccelerometerNoSlowMotionThreshold_mg()
 {
   BNO_acc_range_t range = getAccelerometerRange();
-  uint8_t value = read8(ACC_NM_THRES_ADDR, PAGE_ONE);
+  uint8_t value = read(ACC_NM_THRES_ADDR, PAGE_ONE);
   switch (range)
   {
   case BNO_acc_range_t::G_02:
@@ -1334,7 +1334,7 @@ float BNO055::getAccelerometerNoSlowMotionThreshold_mg()
  */
 void BNO055::setAccelerometerNoSlowMotionThreshold(uint8_t thr)
 {
-  write8(ACC_NM_THRES_ADDR, thr, PAGE_ONE);
+  write(ACC_NM_THRES_ADDR, thr, PAGE_ONE);
 }
 
 /*!
@@ -1363,7 +1363,7 @@ void BNO055::setAccelerometerNoSlowMotionThreshold(float thr)
     value = 0;
     break;
   }
-  write8(ACC_NM_THRES_ADDR, value, PAGE_ONE);
+  write(ACC_NM_THRES_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -1372,7 +1372,7 @@ void BNO055::setAccelerometerNoSlowMotionThreshold(float thr)
  */
 bool BNO055::isNoMotionModeActive()
 {
-  return (read8(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01) ? false : true;
+  return (read(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01) ? false : true;
 }
 
 /*!
@@ -1381,7 +1381,7 @@ bool BNO055::isNoMotionModeActive()
  */
 bool BNO055::isSlowMotionModeActive()
 {
-  return (read8(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01) ? true : false;
+  return (read(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01) ? true : false;
 }
 
 /*!
@@ -1389,7 +1389,7 @@ bool BNO055::isSlowMotionModeActive()
  */
 void BNO055::activateNoMotionMode()
 {
-  write8(ACC_NM_SET_ADDR, read8(ACC_NM_SET_ADDR, PAGE_ONE) & 0xFE, PAGE_ONE);
+  write(ACC_NM_SET_ADDR, read(ACC_NM_SET_ADDR, PAGE_ONE) & 0xFE, PAGE_ONE);
 }
 
 /*!
@@ -1397,7 +1397,7 @@ void BNO055::activateNoMotionMode()
  */
 void BNO055::activateSlowMotionMode()
 {
-  write8(ACC_NM_SET_ADDR, read8(ACC_NM_SET_ADDR, PAGE_ONE) | 0x01, PAGE_ONE);
+  write(ACC_NM_SET_ADDR, read(ACC_NM_SET_ADDR, PAGE_ONE) | 0x01, PAGE_ONE);
 }
 
 /*!
@@ -1406,7 +1406,7 @@ void BNO055::activateSlowMotionMode()
  */
 uint8_t BNO055::getNoSlowMotionDuration()
 {
-  return (read8(ACC_NM_SET_ADDR, PAGE_ONE) >> 1);
+  return (read(ACC_NM_SET_ADDR, PAGE_ONE) >> 1);
 }
 
 /*!
@@ -1415,7 +1415,7 @@ uint8_t BNO055::getNoSlowMotionDuration()
  */
 uint16_t BNO055::getNoSlowMotionDurationInSec()
 {
-  uint8_t dur = read8(ACC_NM_SET_ADDR, PAGE_ONE) >> 1;
+  uint8_t dur = read(ACC_NM_SET_ADDR, PAGE_ONE) >> 1;
   if (dur < 16)
     return dur + 1;
   if (dur < 22)
@@ -1440,7 +1440,7 @@ void BNO055::setNoSlowMotionDuration(uint8_t duration)
   if (duration > 21 && duration < 32)
     return;
 
-  write8(ACC_NM_SET_ADDR, (duration << 1) & (read8(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01), PAGE_ONE);
+  write(ACC_NM_SET_ADDR, (duration << 1) & (read(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01), PAGE_ONE);
 }
 
 /*!
@@ -1450,7 +1450,7 @@ void BNO055::setNoSlowMotionDuration(uint8_t duration)
  */
 uint16_t BNO055::setNoSlowMotionDuration(uint16_t duration)
 {
-  uint8_t no_slow_motion_bit = read8(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01;
+  uint8_t no_slow_motion_bit = read(ACC_NM_SET_ADDR, PAGE_ONE) & 0x01;
 
   setAccelerometerNoSlowMotionSetting(no_slow_motion_bit == 0x01, duration);
 
@@ -1463,7 +1463,7 @@ uint16_t BNO055::setNoSlowMotionDuration(uint16_t duration)
  */
 uint8_t BNO055::getAccelerometerNoSlowMotionSetting()
 {
-  return read8(ACC_NM_SET_ADDR, PAGE_ONE);
+  return read(ACC_NM_SET_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1485,9 +1485,9 @@ void BNO055::setAccelerometerNoSlowMotionSetting(bool isSlowMode, uint8_t durati
   }
 
   if (isSlowMode)
-    write8(ACC_NM_SET_ADDR, (duration << 1) | 0x01, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, (duration << 1) | 0x01, PAGE_ONE);
   else
-    write8(ACC_NM_SET_ADDR, (duration << 1) & 0xFE, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, (duration << 1) & 0xFE, PAGE_ONE);
 }
 
 /*!
@@ -1500,15 +1500,15 @@ void BNO055::setAccelerometerNoSlowMotionSetting(bool isSlowMode, uint16_t durat
 {
   uint8_t no_slow_motion_bit = isSlowMode ? 0x01 : 0x00;
   if (duration > 336)
-    write8(ACC_NM_SET_ADDR, (63 << 1) & no_slow_motion_bit, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, (63 << 1) & no_slow_motion_bit, PAGE_ONE);
   if (duration == 0)
-    write8(ACC_NM_SET_ADDR, no_slow_motion_bit, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, no_slow_motion_bit, PAGE_ONE);
   else if (duration < 17)
-    write8(ACC_NM_SET_ADDR, ((uint8_t)(duration - 1) << 1) & no_slow_motion_bit, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, ((uint8_t)(duration - 1) << 1) & no_slow_motion_bit, PAGE_ONE);
   else if (duration < 81)
-    write8(ACC_NM_SET_ADDR, (((uint8_t)ceil((duration - 40) / 8.0) + 16) << 1) & no_slow_motion_bit, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, (((uint8_t)ceil((duration - 40) / 8.0) + 16) << 1) & no_slow_motion_bit, PAGE_ONE);
   else
-    write8(ACC_NM_SET_ADDR, (((uint8_t)ceil((duration - 88) / 8.0) + 32) << 1) & no_slow_motion_bit, PAGE_ONE);
+    write(ACC_NM_SET_ADDR, (((uint8_t)ceil((duration - 88) / 8.0) + 32) << 1) & no_slow_motion_bit, PAGE_ONE);
 }
 
 /*!
@@ -1517,7 +1517,7 @@ void BNO055::setAccelerometerNoSlowMotionSetting(bool isSlowMode, uint16_t durat
  */
 BNO055::BNO_gyr_interrupt_settings_t BNO055::getGyroscopeInterruptSettings()
 {
-  return (BNO_gyr_interrupt_settings_t)read8(GYR_INT_SETTING_ADDR, PAGE_ONE);
+  return (BNO_gyr_interrupt_settings_t)read(GYR_INT_SETTING_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1526,7 +1526,7 @@ BNO055::BNO_gyr_interrupt_settings_t BNO055::getGyroscopeInterruptSettings()
  */
 void BNO055::setGyroscopeInterruptSettings(BNO_gyr_interrupt_settings_t setting)
 {
-  write8(GYR_INT_SETTING_ADDR, setting, PAGE_ONE);
+  write(GYR_INT_SETTING_ADDR, setting, PAGE_ONE);
 }
 
 /*!
@@ -1539,11 +1539,11 @@ uint8_t BNO055::getGyroscopeHighRateSettings(BNO_axis_t axis)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    return read8(GYR_HR_X_SET_ADDR, PAGE_ONE);
+    return read(GYR_HR_X_SET_ADDR, PAGE_ONE);
   case BNO_axis_t::AXIS_Y:
-    return read8(GYR_HR_Y_SET_ADDR, PAGE_ONE);
+    return read(GYR_HR_Y_SET_ADDR, PAGE_ONE);
   case BNO_axis_t::AXIS_Z:
-    return read8(GYR_HR_Z_SET_ADDR, PAGE_ONE);
+    return read(GYR_HR_Z_SET_ADDR, PAGE_ONE);
   default:
     return 0;
   }
@@ -1559,11 +1559,11 @@ uint8_t BNO055::getGyroscopeHighRateHysteresisThreshold(BNO_axis_t axis)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    return (read8(GYR_HR_X_SET_ADDR, PAGE_ONE) & 0x60) >> 5;
+    return (read(GYR_HR_X_SET_ADDR, PAGE_ONE) & 0x60) >> 5;
   case BNO_axis_t::AXIS_Y:
-    return (read8(GYR_HR_Y_SET_ADDR, PAGE_ONE) & 0x60) >> 5;
+    return (read(GYR_HR_Y_SET_ADDR, PAGE_ONE) & 0x60) >> 5;
   case BNO_axis_t::AXIS_Z:
-    return (read8(GYR_HR_Z_SET_ADDR, PAGE_ONE) & 0x60) >> 5;
+    return (read(GYR_HR_Z_SET_ADDR, PAGE_ONE) & 0x60) >> 5;
   default:
     return 0;
   }
@@ -1608,11 +1608,11 @@ uint8_t BNO055::getGyroscopeHighRateThreshold(BNO_axis_t axis)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    return (read8(GYR_HR_X_SET_ADDR, PAGE_ONE) & 0x1F);
+    return (read(GYR_HR_X_SET_ADDR, PAGE_ONE) & 0x1F);
   case BNO_axis_t::AXIS_Y:
-    return (read8(GYR_HR_Y_SET_ADDR, PAGE_ONE) & 0x1F);
+    return (read(GYR_HR_Y_SET_ADDR, PAGE_ONE) & 0x1F);
   case BNO_axis_t::AXIS_Z:
-    return (read8(GYR_HR_Z_SET_ADDR, PAGE_ONE) & 0x1F);
+    return (read(GYR_HR_Z_SET_ADDR, PAGE_ONE) & 0x1F);
   default:
     return 0;
   }
@@ -1657,11 +1657,11 @@ uint8_t BNO055::getGyroscopeHighRateDuration(BNO_axis_t axis)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    return read8(GYR_DUR_X_ADDR, PAGE_ONE);
+    return read(GYR_DUR_X_ADDR, PAGE_ONE);
   case BNO_axis_t::AXIS_Y:
-    return read8(GYR_DUR_Y_ADDR, PAGE_ONE);
+    return read(GYR_DUR_Y_ADDR, PAGE_ONE);
   case BNO_axis_t::AXIS_Z:
-    return read8(GYR_DUR_Z_ADDR, PAGE_ONE);
+    return read(GYR_DUR_Z_ADDR, PAGE_ONE);
   default:
     return 0;
   }
@@ -1687,13 +1687,13 @@ void BNO055::setGyroscopeHighRateSettings(BNO_axis_t axis, uint8_t value)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Y:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Z:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   }
 }
@@ -1713,13 +1713,13 @@ void BNO055::setGyroscopeHighRateHysteresisThreshold(BNO_axis_t axis, uint8_t th
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Y:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Z:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   }
 }
@@ -1780,13 +1780,13 @@ void BNO055::setGyroscopeHighRateThreshold(BNO_axis_t axis, uint8_t thr)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Y:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Z:
-    write8(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
+    write(GYR_HR_X_SET_ADDR, value, PAGE_ONE);
     break;
   }
 }
@@ -1843,13 +1843,13 @@ void BNO055::setGyroscopeHighRateDuration(BNO_axis_t axis, uint8_t dur)
   switch (axis)
   {
   case BNO_axis_t::AXIS_X:
-    write8(GYR_DUR_X_ADDR, dur, PAGE_ONE);
+    write(GYR_DUR_X_ADDR, dur, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Y:
-    write8(GYR_DUR_Y_ADDR, dur, PAGE_ONE);
+    write(GYR_DUR_Y_ADDR, dur, PAGE_ONE);
     break;
   case BNO_axis_t::AXIS_Z:
-    write8(GYR_DUR_Z_ADDR, dur, PAGE_ONE);
+    write(GYR_DUR_Z_ADDR, dur, PAGE_ONE);
     break;
   }
 }
@@ -1877,7 +1877,7 @@ void BNO055::setGyroscopeHighRateDuration_ms(BNO_axis_t axis, float dur)
  */
 uint8_t BNO055::getGyroscopeAnyMotionThreshold()
 {
-  return read8(GYR_AM_THRES_ADDR, PAGE_ONE);
+  return read(GYR_AM_THRES_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1918,7 +1918,7 @@ void BNO055::setGyroscopeAnyMotionThreshold(uint8_t thr)
 {
   if (thr > 0x7f)
     thr = 0x7F;
-  write8(GYR_AM_THRES_ADDR, thr, PAGE_ONE);
+  write(GYR_AM_THRES_ADDR, thr, PAGE_ONE);
 }
 
 /*!
@@ -1965,7 +1965,7 @@ void BNO055::setGyroscopeAnyMotionThreshold(float thr)
  */
 uint8_t BNO055::getGyroscopeAnyMotionSettings()
 {
-  return read8(GYR_AM_SET_ADDR, PAGE_ONE);
+  return read(GYR_AM_SET_ADDR, PAGE_ONE);
 }
 
 /*!
@@ -1996,7 +1996,7 @@ void BNO055::setGyroscopeAnyMotionSettings(uint8_t value)
 {
   if (value > 0x0F)
     return;
-  write8(GYR_AM_SET_ADDR, value, PAGE_ONE);
+  write(GYR_AM_SET_ADDR, value, PAGE_ONE);
 }
 
 /*!
@@ -2055,11 +2055,11 @@ bool BNO055::writePageId(uint8_t pageId)
  *  @param mask mask is AND with the current value
  *  @param pageId Page Id. Default value for the PageId is page zero 
  */
-bool BNO055::write(BNO055_reg_t _register, byte value, byte mask, uint8_t pageId = 0x00)
+bool BNO055::maskwrite(BNO055_reg_t _register, byte value, byte mask, uint8_t pageId)
 {
   if (!writePageId(pageId))
     return false;
-  uint8_t val = (read8(_register) & mask) | value;
+  uint8_t val = (read(_register) & mask) | value;
 
   _wire->beginTransmission(_address);
 #if ARDUINO >= 100
@@ -2078,7 +2078,7 @@ bool BNO055::write(BNO055_reg_t _register, byte value, byte mask, uint8_t pageId
  *  @param value value will be written on the address
  *  @param pageId Page Id. Default value for the PageId is page zero 
  */
-bool BNO055::write8(BNO055_reg_t reg, byte value, uint8_t pageId)
+bool BNO055::write(BNO055_reg_t reg, byte value, uint8_t pageId)
 {
 
   if (!writePageId(pageId))
@@ -2103,7 +2103,7 @@ bool BNO055::write8(BNO055_reg_t reg, byte value, uint8_t pageId)
  *  @param reg registry addresss
  *  @param pageId Page Id. Default value for the PageId is page zero 
  */
-byte BNO055::read8(BNO055_reg_t reg, uint8_t pageId)
+byte BNO055::read(BNO055_reg_t reg, uint8_t pageId)
 {
   byte value = 0;
 
@@ -2131,8 +2131,8 @@ byte BNO055::read8(BNO055_reg_t reg, uint8_t pageId)
  *  @brief  Reads the specified number of bytes over I2C
  * Default value for the PageId is page zero 
  */
-bool BNO055::readLen(BNO055_reg_t reg, byte *buffer,
-                     uint8_t len, uint8_t pageId)
+bool BNO055::read(BNO055_reg_t reg, byte *buffer,
+                  uint8_t len, uint8_t pageId)
 {
   if (!writePageId(pageId))
     return false;
