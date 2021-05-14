@@ -672,9 +672,10 @@ private:
   bool begin(BNO055_opmode_t mode = OPERATION_MODE_NDOF);
 
   bool writePageId(uint8_t pageId);
-  byte read8(BNO055_reg_t, uint8_t pageId = 0x00);
-  bool readLen(BNO055_reg_t, byte *buffer, uint8_t len, uint8_t pageId = 0x00);
-  bool write8(BNO055_reg_t, byte value, uint8_t pageId = 0x00);
+  byte read(BNO055_reg_t, uint8_t pageId = 0x00);
+  bool read(BNO055_reg_t, byte *buffer, uint8_t len, uint8_t pageId = 0x00);
+  bool write(BNO055_reg_t, byte value, uint8_t pageId = 0x00);
+  bool write(BNO055_reg_t _register, byte value, byte mask, uint8_t pageId = 0x00);
 
   uint8_t _address;
   TwoWire *_wire;

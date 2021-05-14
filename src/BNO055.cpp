@@ -2049,6 +2049,30 @@ bool BNO055::writePageId(uint8_t pageId)
 }
 
 /*!
+ *  @brief  Writes an 8 bit value over I2C with masking
+ *  @param reg registry addresss
+ *  @param value value will be written on the address
+ *  @param mask mask is AND with the current value
+ *  @param pageId Page Id. Default value for the PageId is page zero 
+ */
+bool BNO055::write(BNO055_reg_t _register, byte value, byte mask, uint8_t pageId = 0x00)
+{
+  if (!writePageId(pageId))
+    return false;
+  uint8_t val = (read8(_register) & mask) | value;
+
+  _wire->beginTransmission(_address);
+#if ARDUINO >= 100
+  _wire->write((uint8_t)_register);
+  _wire->write((uint8_t)value);
+#else
+  _wire->send(reg);
+  _wire->send(value);
+#endif
+  _wire->endTransmission();
+}
+
+/*!
  *  @brief  Writes an 8 bit value over I2C
  *  @param reg registry addresss
  *  @param value value will be written on the address
