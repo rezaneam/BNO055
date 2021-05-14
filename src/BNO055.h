@@ -603,6 +603,8 @@ public:
   void setExternalInterruptEnable(BNO_interrupts_t status);
   BNO_interrupts_t getInterruptEnable();
   void setInterruptEnable(BNO_interrupts_t status);
+  void disableExternalInterruptEnable();
+  void disableInterruptEnable();
 
   /* Accelerometer Interrupt configuration */
   uint8_t getAccelerometerAnyMotionThreshold();

@@ -1140,6 +1140,22 @@ void BNO055::setInterruptEnable(BNO_interrupts_t status)
 }
 
 /*!
+ *  @brief  Disabling all interrupt source(s).
+ */
+void BNO055::disableInterruptEnable()
+{
+  write8(INT_EN_ADDR, 0x00, PAGE_ONE);
+}
+
+/*!
+ *  @brief  Disconnecting all interrupt source(s) to interrupt pin.
+ */
+void BNO055::disableExternalInterruptEnable()
+{
+  write8(INT_MASK_ADDR, 0x00, PAGE_ONE);
+}
+
+/*!
  *  @brief  Getting the Threshold of Any Motion Interrupt for Accelerometer
  *  @return The raw value of motion Threshold
  */
