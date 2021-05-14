@@ -676,6 +676,8 @@ private:
   bool read(BNO055_reg_t, byte *buffer, uint8_t len, uint8_t pageId = 0x00);
   bool write(BNO055_reg_t, byte value, uint8_t pageId = 0x00);
   bool maskwrite(BNO055_reg_t _register, byte value, byte mask, uint8_t pageId = 0x00);
+  bool set(BNO055_reg_t _register, const uint8_t &_bit, uint8_t pageId = 0x00);
+  bool unset(BNO055_reg_t _register, const uint8_t &_bit, uint8_t pageId = 0x00);
 
   uint8_t _address;
   TwoWire *_wire;

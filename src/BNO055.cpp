@@ -2070,6 +2070,34 @@ bool BNO055::maskwrite(BNO055_reg_t _register, byte value, byte mask, uint8_t pa
   _wire->send(value);
 #endif
   _wire->endTransmission();
+
+  return true;
+}
+
+/*!
+ *  @brief  Sets bit in a register
+ *  @param _register registry addresss
+ *  @param _bit bit position has to be set
+ *  @param pageId Page Id. Default value for the PageId is page zero 
+ */
+bool BNO055::set(BNO055_reg_t _register, const uint8_t &_bit, uint8_t pageId)
+{
+  uint8_t value = read(_register, pageId);
+  value |= (1 << _bit);
+  return write(_register, value, pageId);
+}
+
+/*!
+ *  @brief  Sets bit in a register
+ *  @param _register registry addresss
+ *  @param _bit bit position has to be set
+ *  @param pageId Page Id. Default value for the PageId is page zero 
+ */
+bool BNO055::unset(BNO055_reg_t _register, const uint8_t &_bit, uint8_t pageId)
+{
+  uint8_t value = read(_register, pageId);
+  value &= ~(1 << _bit);
+  return write(_register, value, pageId);
 }
 
 /*!
