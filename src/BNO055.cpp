@@ -1113,9 +1113,80 @@ BNO055::BNO_interrupts_t BNO055::getExternalInterruptEnable()
  *  @param status may contain single or multiple interrupt source. Use | activate multiple interrupts.
  *  check BNO_interrupts_t for more datail
  */
-void BNO055::setExternalInterruptEnable(BNO_interrupts_t status)
+void BNO055::setExternalInterruptEnable(BNO_interrupts_t source)
 {
-  write(INT_MASK_ADDR, status, PAGE_ONE);
+  write(INT_MASK_ADDR, source, PAGE_ONE);
+}
+
+/*!
+ *  @brief  Setting Interrupt Mask for triggering INT pin.
+ *  @param status Target interrupt source. don't use multiple interrupts.
+ *  check BNO_interrupts_t for more datail
+ *  @param enable true to enable interrupt.
+ */
+void BNO055::setExternalInterruptEnable(BNO_interrupts_t source, bool enable)
+{
+  switch (source)
+  {
+  case BNO_interrupts_t::ACCELEROMETER_BSX_DATA_READY:
+    if (enable)
+      set(INT_MASK_ADDR, 0, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 0, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::MAGNETOMETER_DATA_READY:
+    if (enable)
+      set(INT_MASK_ADDR, 1, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 1, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::GYROSCOPE_ANY_MOTION:
+    if (enable)
+      set(INT_MASK_ADDR, 2, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 2, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::GYROSCOPE_HIGH_RATE:
+    if (enable)
+      set(INT_MASK_ADDR, 3, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 3, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::GYROSCOPE_DATA_READY:
+    if (enable)
+      set(INT_MASK_ADDR, 4, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 4, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::ACCELEROMETER_HIGH_G:
+    if (enable)
+      set(INT_MASK_ADDR, 5, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 5, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::ACCELEROMETER_ANY_MOTION:
+    if (enable)
+      set(INT_MASK_ADDR, 6, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 6, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::ACCELEROMETER_NO_MOTION:
+    if (enable)
+      set(INT_MASK_ADDR, 7, PAGE_ONE);
+    else
+      unset(INT_MASK_ADDR, 7, PAGE_ONE);
+    break;
+
+  default:
+    break;
+  }
 }
 
 /*!
@@ -1137,6 +1208,77 @@ BNO055::BNO_interrupts_t BNO055::getInterruptEnable()
 void BNO055::setInterruptEnable(BNO_interrupts_t status)
 {
   write(INT_EN_ADDR, status, PAGE_ONE);
+}
+
+/*!
+ *  @brief  Enabling the interrupt source.
+ *  @param status Target interrupt source. don't use multiple interrupts.
+ *  check BNO_interrupts_t for more datail
+ *  @param enable true to enable interrupt.
+ */
+void BNO055::setInterruptEnable(BNO_interrupts_t source, bool enable)
+{
+  switch (source)
+  {
+  case BNO_interrupts_t::ACCELEROMETER_BSX_DATA_READY:
+    if (enable)
+      set(INT_EN_ADDR, 0, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 0, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::MAGNETOMETER_DATA_READY:
+    if (enable)
+      set(INT_EN_ADDR, 1, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 1, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::GYROSCOPE_ANY_MOTION:
+    if (enable)
+      set(INT_EN_ADDR, 2, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 2, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::GYROSCOPE_HIGH_RATE:
+    if (enable)
+      set(INT_EN_ADDR, 3, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 3, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::GYROSCOPE_DATA_READY:
+    if (enable)
+      set(INT_EN_ADDR, 4, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 4, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::ACCELEROMETER_HIGH_G:
+    if (enable)
+      set(INT_EN_ADDR, 5, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 5, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::ACCELEROMETER_ANY_MOTION:
+    if (enable)
+      set(INT_EN_ADDR, 6, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 6, PAGE_ONE);
+    break;
+
+  case BNO_interrupts_t::ACCELEROMETER_NO_MOTION:
+    if (enable)
+      set(INT_EN_ADDR, 7, PAGE_ONE);
+    else
+      unset(INT_EN_ADDR, 7, PAGE_ONE);
+    break;
+
+  default:
+    break;
+  }
 }
 
 /*!

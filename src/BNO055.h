@@ -601,8 +601,10 @@ public:
   /* Interrupt */
   BNO_interrupts_t getExternalInterruptEnable();
   void setExternalInterruptEnable(BNO_interrupts_t status);
+  void setExternalInterruptEnable(BNO_interrupts_t status, bool enable);
   BNO_interrupts_t getInterruptEnable();
   void setInterruptEnable(BNO_interrupts_t status);
+  void setInterruptEnable(BNO_interrupts_t status, bool enable);
   void disableExternalInterruptEnable();
   void disableInterruptEnable();
 
