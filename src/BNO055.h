@@ -1,20 +1,23 @@
 /*!
- *  @file BNO055.h
+ * @file BNO055.cpp
  *
- *  This is a library for the BNO055 orientation sensor
+ *  @mainpage Bosch BNO055 Orientation sensor and AHRS system
  *
- *  Designed specifically to work with the Adafruit BNO055 Breakout.
+ *  @section Information
  *
- *  Pick one up today in the adafruit shop!
- *  ------> https://www.adafruit.com/product/2472
+ *  This is a library for the Bosch BNO055 Orientation sensor and AHRS system in ardunio framework
+ * 
+ *  This driver is written by inspiring from [Adafruit Unified BNO055 Driver (AHRS/Orientation)](https://github.com/adafruit/Adafruit_BNO055).
  *
- *  These sensors use I2C to communicate, 2 pins are required to interface.
+ *  Find more detail on the sensor on https://www.bosch-sensortec.com/products/smart-sensors/bno055/
  *
- *  Adafruit invests time and resources providing this open source code,
- *  please support Adafruit andopen-source hardware by purchasing products
- *  from Adafruit!
+ *  This library is only supporting I2C interface not SPI.
  *
- *  K.Townsend (Adafruit Industries)
+ *  @section author Author
+ *
+ *  MReza Naeemabadi
+ *
+ *  @section license License
  *
  *  MIT license, all text above must be included in any redistribution
  */
