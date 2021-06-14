@@ -1,0 +1,20 @@
+{
+  "name": "BNO055",
+  "version": "1.0.0",
+  "keywords": "Arduino, BNO055, Accelerometer, Tilt sensor, Acceleration, IMU, MARG, AHRS",
+  "description": "Comprehesive library for Bosch BNO055",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rezaneam/BNO055.git"
+  },
+  "authors": [
+    {
+      "name": "MReza Naeemabadi",
+      "email": "mr.naeemabadi@gmail.com",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "frameworks": "arduino",
+  "platforms": "rp2040, espressif8266, espressif32, ststm32"
+}
